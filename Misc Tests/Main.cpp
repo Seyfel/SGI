@@ -1,12 +1,15 @@
-//#include <GL/GLUT.H>
 #include <GL/freeglut.h>
 #include <utility>
 #include <math.h>
+#include <iostream>
+
 #include "Timer.h"
 
 #define PI 3.14159265f
 
 GLuint star;
+float rotation;
+
 Timer timer;
 
 std::pair<float, float> rotate2d(const std::pair<float, float>& p, float degrees) {
@@ -66,21 +69,27 @@ void initStar() {
 }
 
 void display() {
+	timer.stopDeltaChrono();
+	timer.startDeltaChrono();
+	
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	glColor3f(0.0f, 0.0f, 0.3f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	// Inverse Order: first scales, then rotate and finally translate
-	glTranslatef(1, 0.0, 0.0);
-	glRotatef(90, 0.0, 0.0, 1.0);
-	glScalef(0.5, 0.5, 0.5);
 
+	rotation += 90.0f * timer.getDeltaTime();
+	rotation = std::fmodf(rotation, 360);
+	glRotatef(rotation, 0.0, 0.0, 1.0);
+
+	glColor3f(0.0f, 0.0f, 0.3f);
 	glCallList(star);
 
-	//glLoadIdentity();
 	glFlush();
+	glutPostRedisplay();
+
+	int fps = 1 / timer.getDeltaTime();
+	std::cout << "\r" << fps << " fps                   ";
 }
 
 void reshape(GLint w, GLint h) {
@@ -88,6 +97,7 @@ void reshape(GLint w, GLint h) {
 }
 
 int main(int argc, char** argv) {
+	timer = Timer();
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 
@@ -98,6 +108,8 @@ int main(int argc, char** argv) {
 	glutReshapeFunc(reshape);
 
 	initStar();
+	rotation = 0.0f;
 
+	timer.startDeltaChrono();
 	glutMainLoop();
 }
