@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 
 	glutInitWindowSize(400, 400);
-	glutCreateWindow("star de David");
+	glutCreateWindow("Estrella de David");
 
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
