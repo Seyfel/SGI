@@ -6,6 +6,7 @@
 #define PI 3.14159265f
 
 GLuint star;
+GLuint tile;
 
 std::pair<float, float> rotate2d(const std::pair<float, float>& p, float degrees) {
 	float rad = degrees * PI / 180;
@@ -13,7 +14,7 @@ std::pair<float, float> rotate2d(const std::pair<float, float>& p, float degrees
 		p.first * sin(rad) + p.second * cos(rad));
 }
 
-void initStar() {
+void init() {
 	star = glGenLists(1);
 	glNewList(star, GL_COMPILE); {
 		glBegin(GL_TRIANGLE_STRIP); {
@@ -61,23 +62,52 @@ void initStar() {
 		glEnd();
 	}
 	glEndList();
+
+	tile = glGenLists(1);
+	glNewList(tile, GL_COMPILE); {
+		glPushMatrix();
+		glScalef(0.5, 0.5, 0);
+		glCallList(star);
+		glScalef(0.4, 0.4, 0);
+		glRotatef(-30, 0, 0, 1);
+		glCallList(star);
+		glPopMatrix();
+	}
+	glEndList();
 }
 
 void display() {
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	glColor3f(0.0f, 0.0f, 0.3f);
+	glColor3f(0.0f, 0.0f, 0.8f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	// Inverse Order: first scales, then rotate and finally translate
-	glTranslatef(1, 0.0, 0.0);
-	glRotatef(90, 0.0, 0.0, 1.0);
-	glScalef(0.5, 0.5, 0.5);
 
-	glCallList(star);
+	glPushMatrix();
+	glTranslatef(-0.5, 0.5, 0);
+	glRotatef(15, 0, 0, 1);
+	glCallList(tile);
+	glPopMatrix();
 
-	//glLoadIdentity();
+	glPushMatrix();
+	glTranslatef(0.5, 0.5, 0);
+	glRotatef(-15, 0, 0, 1);
+	glCallList(tile);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(-0.5, -0.5, 0);
+	glRotatef(-15, 0, 0, 1);
+	glCallList(tile);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(0.5, -0.5, 0);
+	glRotatef(15, 0, 0, 1);
+	glCallList(tile);
+	glPopMatrix();
+
 	glFlush();
 }
 
@@ -90,12 +120,12 @@ int main(int argc, char** argv) {
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 
 	glutInitWindowSize(400, 400);
-	glutCreateWindow("Estrella de David");
+	glutCreateWindow("Mosaico");
 
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 
-	initStar();
+	init();
 
 	glutMainLoop();
 }
