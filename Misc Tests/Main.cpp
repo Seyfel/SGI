@@ -2,6 +2,9 @@
 #include <utility>
 #include <math.h>
 #include <iostream>
+#include <string>
+#include "GLMatrixf.h"
+#include "GLVector3f.h"
 
 #include "Timer.h"
 
@@ -82,7 +85,26 @@ void display() {
 	rotation = std::fmodf(rotation, 360);
 	glRotatef(rotation, 0.0, 0.0, 1.0);
 
+	/*
+	GLfloat mv[16];
+	glGetFloatv(GL_MODELVIEW_MATRIX, mv);
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			std::cout << mv[i + j * 4] << " ";
+		}
+		std::cout << std::endl;
+	}
+	std::cout << std::endl;
+	*/
+
 	glColor3f(0.0f, 0.0f, 0.3f);
+	//glCallList(star);
+	
+	GLMatrixf::GLMatrixf m;
+	m.rotate(-rotation, GLVector3f::GLVector3f(0.0, 0.0, 1.0));
+	m.transpose();
+	glLoadMatrixf((float*) m.m);
+
 	glCallList(star);
 
 	glFlush();

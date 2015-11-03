@@ -30,12 +30,18 @@
     <ClCompile Include="GLVector3f.cpp">
       <Filter>Source Files\Util</Filter>
     </ClCompile>
+    <ClCompile Include="GLMatrixf.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Timer.h">
       <Filter>Header Files\Util</Filter>
     </ClInclude>
     <ClInclude Include="GLVector3f.h">
+      <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="GLMatrixf.h">
       <Filter>Header Files\Util</Filter>
     </ClInclude>
   </ItemGroup>
