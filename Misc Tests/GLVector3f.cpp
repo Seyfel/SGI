@@ -1,7 +1,7 @@
 #include "GLVector3f.h"
 
 namespace GLVector3f {
-	float GLVector3f::getLength() const {
+	float GLVector3f::length() const {
 		return sqrtf(x*x + y*y + z*z);
 	}
 
@@ -12,13 +12,13 @@ namespace GLVector3f {
 	}
 
 	void GLVector3f::normalize() {
-		float length = getLength();
-		if (length <= 0.0f) {
+		float l = length();
+		if (l <= 0.0f) {
 			return;
 		}
-		x /= length;
-		y /= length;
-		z /= length;
+		x /= l;
+		y /= l;
+		z /= l;
 	}
 
 	GLVector3f add(const GLVector3f& v1, const GLVector3f& v2) {
