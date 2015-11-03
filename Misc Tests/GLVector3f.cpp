@@ -14,7 +14,7 @@ namespace GLVector3f {
 	void GLVector3f::normalize() {
 		float l = length();
 		if (l <= 0.0f) {
-			return;
+			return; // Precision problem
 		}
 		x /= l;
 		y /= l;
