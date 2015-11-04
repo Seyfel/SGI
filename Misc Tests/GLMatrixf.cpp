@@ -2,7 +2,6 @@
 
 #include <iostream>
 
-#define DEG_TO_RAD .017453292F
 
 namespace GLMatrixf {
 	GLMatrixf::GLMatrixf() {
@@ -20,7 +19,7 @@ namespace GLMatrixf {
 	void GLMatrixf::rotate(float degrees, GLVector3f::GLVector3f axis) {
 		axis.normalize();
 
-		float rad = degrees * DEG_TO_RAD;
+		float rad = degrees * Constants::deg_to_rad;
 		float s = sinf(rad);
 		float c = cosf(rad);
 		float t = 1.0f - c;

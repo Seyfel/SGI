@@ -1,7 +1,10 @@
 #pragma once
-#include "GLVector3f.h"
+
 #include <string.h>
 #include <math.h>
+
+#include "GLVector3f.h"
+#include "Constants.h"
 
 namespace GLMatrixf {
 	class GLMatrixf{
