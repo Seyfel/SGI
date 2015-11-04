@@ -89,7 +89,11 @@ namespace GLMatrixf {
 	}
 
 	GLVector3f::GLVector3f transformPoint(const GLMatrixf& m, const GLVector3f::GLVector3f& p) {
-		return p;
+		GLVector3f::GLVector3f res;
+		res.x = m.m[0][0] * p.x + m.m[0][1] * p.y + m.m[0][2] * p.z + m.m[0][3];
+		res.y = m.m[1][0] * p.x + m.m[1][1] * p.y + m.m[1][2] * p.z + m.m[1][3];
+		res.z = m.m[2][0] * p.x + m.m[2][1] * p.y + m.m[2][2] * p.z + m.m[2][3];
+		return res;
 	}
 
 	void print(const GLMatrixf& m) {
