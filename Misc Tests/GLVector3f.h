@@ -7,6 +7,7 @@ namespace GLVector3f {
 	public:
 		float x, y, z;
 
+		GLVector3f() : x(0.0f), y(0.0f), z(0.0f) {}
 		GLVector3f(float x, float y, float z) : x(x), y(y), z(z) {}
 		float length() const;
 		void scale(float scalar);
