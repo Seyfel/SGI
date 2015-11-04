@@ -33,6 +33,9 @@
     <ClCompile Include="GLMatrixf.cpp">
       <Filter>Source Files\Util</Filter>
     </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Timer.h">
@@ -42,6 +45,12 @@
       <Filter>Header Files\Util</Filter>
     </ClInclude>
     <ClInclude Include="GLMatrixf.h">
+      <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Constants.h">
       <Filter>Header Files\Util</Filter>
     </ClInclude>
   </ItemGroup>
