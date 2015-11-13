@@ -36,6 +36,9 @@
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files\Util</Filter>
     </ClCompile>
+    <ClCompile Include="InputHandler.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Timer.h">
@@ -51,6 +54,9 @@
       <Filter>Header Files\Util</Filter>
     </ClInclude>
     <ClInclude Include="Constants.h">
+      <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="InputHandler.h">
       <Filter>Header Files\Util</Filter>
     </ClInclude>
   </ItemGroup>

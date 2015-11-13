@@ -1,8 +1,7 @@
 #include "Camera.h"
 
 Camera::Camera(GLVector3f::GLVector3f position, GLVector3f::GLVector3f look) : position(position) {
-	look.normalize();
-	this->look = look;
+	this->look = normalize(look);
 }
 
 void Camera::update() {
@@ -15,16 +14,13 @@ void Camera::update() {
 
 void Camera::moveForward(float distance) {
 	GLVector3f::GLVector3f movement = look;
-	look.scale(distance);
-	position = GLVector3f::add(position, movement);
+	position = GLVector3f::add(position, GLVector3f::scale(movement, distance));
 }
 
 void Camera::pan(float distance) {
 	// Pan direction is perpendicular to look and up
 	GLVector3f::GLVector3f movement = GLVector3f::crossProduct(look, up);
-	
-	movement.scale(distance);
-	position = GLVector3f::add(position, movement);
+	position = GLVector3f::add(position, GLVector3f::scale(movement, distance));
 }
 
 void Camera::pitch(float delta) {
@@ -50,6 +46,5 @@ void Camera::newPosition(GLVector3f::GLVector3f newPosition) {
 }
 
 void Camera::lookAt(GLVector3f::GLVector3f point) {
-	look = GLVector3f::substract(point, position);
-	look.normalize();
+	look = GLVector3f::normalize(GLVector3f::substract(point, position));
 }

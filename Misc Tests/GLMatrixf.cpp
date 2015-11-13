@@ -17,7 +17,7 @@ namespace GLMatrixf {
 	}
 
 	void GLMatrixf::rotate(float degrees, GLVector3f::GLVector3f axis) {
-		axis.normalize();
+		GLVector3f::GLVector3f normalAxis = GLVector3f::normalize(axis);
 
 		float rad = degrees * Constants::deg_to_rad;
 		float s = sinf(rad);
@@ -25,17 +25,17 @@ namespace GLMatrixf {
 		float t = 1.0f - c;
 
 		GLMatrixf r;
-		r.m[0][0] = axis.x * axis.x * t + c;
-		r.m[0][1] = axis.x * axis.y * t - axis.z * s;
-		r.m[0][2] = axis.x * axis.z * t + axis.y * s;
+		r.m[0][0] = normalAxis.x * normalAxis.x * t + c;
+		r.m[0][1] = normalAxis.x * normalAxis.y * t - normalAxis.z * s;
+		r.m[0][2] = normalAxis.x * normalAxis.z * t + normalAxis.y * s;
 
-		r.m[1][0] = axis.y * axis.x * t + axis.z * s;
-		r.m[1][1] = axis.y * axis.y * t + c;
-		r.m[1][2] = axis.y * axis.z * t - axis.x * s;
+		r.m[1][0] = normalAxis.y * normalAxis.x * t + normalAxis.z * s;
+		r.m[1][1] = normalAxis.y * normalAxis.y * t + c;
+		r.m[1][2] = normalAxis.y * normalAxis.z * t - normalAxis.x * s;
 
-		r.m[2][0] = axis.z * axis.x * t - axis.y * s;
-		r.m[2][1] = axis.z * axis.y * t + axis.x * s;
-		r.m[2][2] = axis.z * axis.z * t + c;
+		r.m[2][0] = normalAxis.z * normalAxis.x * t - normalAxis.y * s;
+		r.m[2][1] = normalAxis.z * normalAxis.y * t + normalAxis.x * s;
+		r.m[2][2] = normalAxis.z * normalAxis.z * t + c;
 
 		memcpy(m, multiply(*this, r).m, sizeof(m));
 	}
