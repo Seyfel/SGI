@@ -1,402 +1,73 @@
-#include <ctime>
 #include <GL/freeglut.h>
-#include <utility>
-#include <math.h>
+#include <sstream>
+
 #include <iostream>
+
 #include "Timer.h"
+#include "InputHandler.h"
+#include "Camera.h"
+#include "RenderUtils.h"
 
-#define DEG_TO_RAD 0.017453292519943295769236907684886f
-#define RAD_TO_DEG 57.295779513082320876798154814105f
-
-struct Camera {
-	float x, y, z;
-	float fovy;
-} camera;
-
-void updateCamera() {
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	gluLookAt(camera.x, camera.y, camera.z,
-		0, 0, 0,
-		0, 1, 0);
-}
+const std::string titulo = "Interfaz de conduccion";
 
 Timer timer;
+Camera camera;
+InputHandler& input = InputHandler::getInstance();
 
-std::pair<float, float> rotate2f(const std::pair<float, float>& p, float degrees) {
-	float rad = degrees * DEG_TO_RAD;
-	return std::make_pair(p.first * cos(rad) - p.second * sin(rad),
-		p.first * sin(rad) + p.second * cos(rad));
+void showSpeed() {
+	std::stringstream ss;
+	ss << titulo << " Velocidad = " << input.getSpeed() << "m/s";
+	glutSetWindowTitle(ss.str().c_str());
 }
 
-void drawI() {
-	glPushMatrix();
-	glScalef(0.1, 1, 0);
-	glutSolidCube(1);
-	glPopMatrix();
-}
+void drawRoad() {
+	float sinAmplitude = 5;
+	float sinPeriod = 50;
+	float roadWidth = 5;
+	int frontLength = 50;
+	int backLength = 15;
 
-void drawV() {
-	glPushMatrix();
+	glColor3f(0.0, 0.0, 0.0);
 
-	glPushMatrix();
-	glTranslatef(0, -0.5, 0);
-	glRotatef(18, 0, 0, 1);
-	glTranslatef(0, 0.5, 0);
-	drawI();
-	glPopMatrix();
+	float z = camera.position.z + backLength;
 
-	glPushMatrix();
-	glTranslatef(0, -0.5, 0);
-	glRotatef(-18, 0, 0, 1);
-	glTranslatef(0, 0.5, 0);
-	drawI();
-	glPopMatrix();
+	float roadZ = z;
+	float roadX = sinAmplitude * sin(roadZ * (Constants::pi / (sinPeriod / 2)));
+	float tgAlpha = (Constants::pi / sinAmplitude) * sin(roadZ * (Constants::pi / (sinPeriod / 2)));
 
-	glPopMatrix();
-}
+	GLVector3f::GLVector3f perp(-1, 0, tgAlpha);
+	GLVector3f::GLVector3f n = GLVector3f::normalize(perp);
+	GLVector3f::GLVector3f scaled = GLVector3f::scale(n, roadWidth);
 
-void drawX() {
-	glPushMatrix();
+	Pointf prevPos(roadX + scaled.x, 0, roadZ + scaled.z);
+	Pointf prevNeg(roadX - scaled.x, 0, roadZ - scaled.z);
 
-	glPushMatrix();
-	glRotatef(20, 0, 0, 1);
-	drawI();
-	glPopMatrix();
+	for (int i = 1; i <= frontLength + backLength; i++) {
+		float roadZ = z - i;
+		float roadX = sinAmplitude * sin(roadZ * (Constants::pi / (sinPeriod / 2)));
+		float tgAlpha = (Constants::pi / sinAmplitude) * sin(roadZ * (Constants::pi / (sinPeriod / 2)));
 
-	glPushMatrix();
-	glRotatef(-20, 0, 0, 1);
-	drawI();
-	glPopMatrix();
+		GLVector3f::GLVector3f perp(-1, 0, tgAlpha);
+		GLVector3f::GLVector3f n = GLVector3f::normalize(perp);
+		GLVector3f::GLVector3f scaled = GLVector3f::scale(n, roadWidth);
 
-	glPopMatrix();
-}
+		Pointf actualPos(roadX + scaled.x, 0, roadZ + scaled.z);
+		Pointf actualNeg(roadX - scaled.x, 0, roadZ - scaled.z);
 
-void drawXII() {
-	glPushMatrix();
-	glTranslatef(0.14, 0.0, 0.0);
+		RenderUtils::quads(prevPos, prevNeg, actualPos, actualNeg, 10, 10);
 
-	glPushMatrix();
-	glTranslatef(-0.35, 0, 0);
-	drawX();
-	glPopMatrix();
-
-	drawI();
-
-	glPushMatrix();
-	glTranslatef(0.2, 0, 0);
-	drawI();
-	glPopMatrix();
-
-	glPopMatrix();
-}
-
-void drawIII() {
-	glPushMatrix();
-
-	glPushMatrix();
-	glTranslatef(-0.2, 0, 0);
-	drawI();
-	glPopMatrix();
-
-	drawI();
-
-	glPushMatrix();
-	glTranslatef(0.2, 0, 0);
-	drawI();
-	glPopMatrix();
-
-	glPopMatrix();
-}
-
-void drawVI() {
-	glPushMatrix();
-	glTranslatef(0.4, 0.0, 0.0);
-
-	glPushMatrix();
-	glTranslatef(-0.525, 0.05, 0);
-	drawV();
-	glPopMatrix();
-
-	drawI();
-
-	glPopMatrix();
-}
-
-void drawIX() {
-	glPushMatrix();
-	glTranslatef(-0.2, 0.0, 0.0);
-
-	glPushMatrix();
-	glTranslatef(0.35, 0, 0);
-	drawX();
-	glPopMatrix();
-
-	drawI();
-
-	glPopMatrix();
-}
-
-void drawRing(float extRadius, float intRadius, int sides) {
-	std::pair<float, float> vInterior(0.0, intRadius), vExterior(0.0, extRadius);
-	glBegin(GL_TRIANGLE_STRIP); {
-		glVertex2f(vInterior.first, vInterior.second);
-		glVertex2f(vExterior.first, vExterior.second);
-		for (int i = 0; i <= sides; i++) {
-			vInterior = rotate2f(vInterior, 360 / sides);
-			vExterior = rotate2f(vExterior, 360 / sides);
-			glVertex2f(vInterior.first, vInterior.second);
-			glVertex2f(vExterior.first, vExterior.second);
-		}
+		prevPos = actualPos;
+		prevNeg = actualNeg;
 	}
-	glEnd();
-}
-
-int clockList;
-void initClockList() {
-
-	int xiiList = glGenLists(1);
-	glNewList(xiiList, GL_COMPILE); {
-		drawXII();
-	}
-	glEndList();
-
-	int iiiList = glGenLists(1);
-	glNewList(iiiList, GL_COMPILE); {
-		drawIII();
-	}
-	glEndList();
-
-	int viList = glGenLists(1);
-	glNewList(viList, GL_COMPILE); {
-		drawVI();
-	}
-	glEndList();
-
-	int ixList = glGenLists(1);
-	glNewList(ixList, GL_COMPILE); {
-		drawIX();
-	}
-	glEndList();
-
-	clockList = glGenLists(1);
-	glNewList(clockList, GL_COMPILE); {
-		// Dibujar Anillo exterior
-		drawRing(1, 0.98, 40);
-		drawRing(0.97, 0.95, 40);
-
-		// Dibujar Anillo interior
-		drawRing(0.75, 0.73, 40);
-		drawRing(0.72, 0.7, 40);
-
-
-		// Dibujar Numeros (12, 3, 6, 9)
-		glPushMatrix();
-		glTranslatef(0, 0.845, 0);
-		glScalef(0.24, 0.24, 0);
-		glCallList(xiiList);
-		glPopMatrix();
-
-		glPushMatrix();
-		glTranslatef(0.845, 0, 0);
-		glRotatef(90, 0, 0, 1);
-		glScalef(0.24, 0.24, 0);
-		glCallList(iiiList);
-		glPopMatrix();
-
-		glPushMatrix();
-		glTranslatef(0, -0.845, 0);
-		glRotatef(180, 0, 0, 1);
-		glScalef(0.24, 0.24, 0);
-		glCallList(viList);
-		glPopMatrix();
-
-		glPushMatrix();
-		glTranslatef(-0.845, 0, 0);
-		glRotatef(90, 0, 0, 1);
-		glScalef(0.24, 0.24, 0);
-		glCallList(ixList);
-		glPopMatrix();
-
-
-		// Dibujar marcadores de horas adicionales
-		glPushMatrix();
-		glRotatef(30, 0, 0, 1);
-		glTranslatef(0, 0.845, 0);
-		glScalef(0.24, 0.24, 0);
-		drawI();
-		glPopMatrix();
-
-		glPushMatrix();
-		glRotatef(60, 0, 0, 1);
-		glTranslatef(0, 0.845, 0);
-		glScalef(0.24, 0.24, 0);
-		drawI();
-		glPopMatrix();
-
-		glPushMatrix();
-		glRotatef(30, 0, 0, 1);
-		glTranslatef(-0.845, 0, 0);
-		glScalef(0.24, 0.24, 0);
-		glRotatef(90, 0, 0, 1);
-		drawI();
-		glPopMatrix();
-
-		glPushMatrix();
-		glRotatef(60, 0, 0, 1);
-		glTranslatef(-0.845, 0, 0);
-		glScalef(0.24, 0.24, 0);
-		glRotatef(90, 0, 0, 1);
-		drawI();
-		glPopMatrix();
-
-		glPushMatrix();
-		glRotatef(30, 0, 0, 1);
-		glTranslatef(0, -0.845, 0);
-		glScalef(0.24, 0.24, 0);
-		drawI();
-		glPopMatrix();
-
-		glPushMatrix();
-		glRotatef(60, 0, 0, 1);
-		glTranslatef(0, -0.845, 0);
-		glScalef(0.24, 0.24, 0);
-		drawI();
-		glPopMatrix();
-
-		glPushMatrix();
-		glRotatef(30, 0, 0, 1);
-		glTranslatef(0.845, 0, 0);
-		glScalef(0.24, 0.24, 0);
-		glRotatef(90, 0, 0, 1);
-		drawI();
-		glPopMatrix();
-
-		glPushMatrix();
-		glRotatef(60, 0, 0, 1);
-		glTranslatef(0.845, 0, 0);
-		glScalef(0.24, 0.24, 0);
-		glRotatef(90, 0, 0, 1);
-		drawI();
-		glPopMatrix();
-	}
-	glEndList();
-}
-
-float rotationMinutes(tm t) {
-	return t.tm_min * 360 / 60;
-}
-
-float rotationHours(tm t) {
-	return ((t.tm_hour) % 12 * 360 / 12) + (rotationMinutes(t) / 12);
-}
-
-float rotationSeconds(tm t) {
-	return t.tm_sec * 360 / 60;
 }
 
 void updateScene() {
-	static bool changeColor = true;
-	static double rotation1 = 0;
-	static double rotation2 = 0;
-	static double rotationSpeed = 30; // Grados por segundo
-	static float rotS = 0;
-	static float lastSecond = 0;
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	drawRoad();
+}
 
-
-	// Esfera 1
-	rotation1 += timer.getDeltaTime() * rotationSpeed;
-	rotation1 = std::fmod(rotation1, 360);
-	if (fabs(rotation1 - 90) < 1e-1) {
-		rotation1 += 180;
-	}
-
-	glPushMatrix(); {
-		glRotated(rotation1, 0, 1, 0);
-		glColor3f(0, fabs(sin(timer.getElapsedTime() / 10.0)), fabs(cos(timer.getElapsedTime() / 10.0)));
-		drawRing(0.98, 0.97, 40);
-		drawRing(0.73, 0.72, 40);
-
-		if (changeColor) {
-			glColor3f(0.5, 0.5, 0.5);
-		}
-		else {
-			glColor3f(0, 0, 0);
-		}
-		glCallList(clockList);
-	}
-	glPopMatrix();
-
-	// Esfera 2
-	rotation2 += timer.getDeltaTime() * rotationSpeed;
-	rotation2 = std::fmod(rotation2, 360);
-	if (fabs(rotation2 - 180) < 1e-1) {
-		rotation2 += 180;
-	}
-
-	glPushMatrix(); {
-		glRotated(rotation2, 0, 1, 0);
-		glRotatef(-90, 0, 1, 0);
-		glColor3f(0, fabs(cos(timer.getElapsedTime() / 10.0)), fabs(sin(timer.getElapsedTime() / 10.0)));
-		drawRing(0.98, 0.97, 40);
-		drawRing(0.73, 0.72, 40);
-
-		if (changeColor) {
-			glColor3f(0.5, 0.5, 0.5);
-		}
-		else {
-			glColor3f(0, 0, 0);
-		}
-		glCallList(clockList);
-	}
-	glPopMatrix();
-
-	// Leer hora actual
-	std::time_t now = std::time(nullptr);
-	struct tm t;
-	time(&now);
-	localtime_s(&t, &now);
-
-	// Actualizar rotacion del segundero
-	if (t.tm_sec == lastSecond) {
-		rotS += 360 / 60 * timer.getDeltaTime();
-	}
-	else {
-		rotS = rotationSeconds(t);
-		lastSecond = t.tm_sec;
-	}
-	// Dibujar segundero
-	glPushMatrix();
-	glColor3f(1, 0, 0);
-	glRotatef(rotS, 0, 0, -1);
-	glTranslatef(0, 0.35, 0);
-	glScalef(0.1, 0.7, 0);
-	drawI();
-	glPopMatrix();
-
-	// Dibujar minutero
-	glColor3f(0.0f, 0.0f, 0.0f);
-	glPushMatrix();
-	glRotatef(rotationMinutes(t), 0, 0, -1);
-	glTranslatef(0, 0.35, 0);
-	glScalef(0.8, 0.7, 0);
-	drawI();
-	glPopMatrix();
-
-	// Controlar cuando se cambia de hora para actualizar un objeto cada hora
-	static int lastHour = 0;
-	if (t.tm_hour != lastHour) {
-		lastHour = t.tm_hour;
-		changeColor = !changeColor;
-	}
-	// Dibujar saeta de las horas
-	glPushMatrix();
-	glRotatef(rotationHours(t), 0, 0, -1);
-	glTranslatef(0, 0.175, 0);
-	glScalef(0.8, 0.35, 0);
-	drawI();
-	glPopMatrix();
-
+void updateCamera() {
+	
 }
 
 void display() {
@@ -405,8 +76,11 @@ void display() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	updateCamera();
+	input.update();
+	camera.render();
 	updateScene();
+
+	showSpeed();
 
 	glutSwapBuffers();
 	glutPostRedisplay();
@@ -419,14 +93,14 @@ void reshape(GLint w, GLint h) {
 	glLoadIdentity();
 
 	float ratio = (float)w / h;
-	gluPerspective(camera.fovy, ratio, 0.1, 1000);
+	gluPerspective(60, ratio, 0.1, 1000);
 }
 
 void init() {
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_MULTISAMPLE);
 
 	glutInitWindowSize(400, 400);
-	glutCreateWindow("Reloj analogico");
+	glutCreateWindow(titulo.c_str());
 
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
@@ -434,16 +108,17 @@ void init() {
 	glEnable(GL_DEPTH_TEST);
 
 	glClearColor(1.0, 1.0, 1.0, 1.0);
-	initClockList();
+
+	input.init();
+	input.setCamera(&camera);
+	input.setTimer(&timer);
+
+	camera.newPosition(GLVector3f::GLVector3f(0, 1, 0));
 }
 
 int main(int argc, char** argv) {
 	glutInit(&argc, argv);
-
 	init();
-
-	camera.x = 0; camera.y = 0; camera.z = 10;
-	camera.fovy = 2 * RAD_TO_DEG * asinf(1 / sqrtf(camera.x * camera.x + camera.y * camera.y + camera.z * camera.z));
 
 	timer.startDeltaChrono();
 	glutMainLoop();

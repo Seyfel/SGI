@@ -12,12 +12,12 @@ private:
 	const float cosMaxPitch = cosf((90 - maxPitch) * Constants::deg_to_rad);
 public:
 	GLVector3f::GLVector3f position = GLVector3f::GLVector3f(0.0f, 0.0f, 0.0f);
-	GLVector3f::GLVector3f look = GLVector3f::GLVector3f(1.0f, 0.0f, 0.0f);
-	GLVector3f::GLVector3f up = GLVector3f::GLVector3f(0.0f, 0.0f, 1.0f);
+	GLVector3f::GLVector3f look = GLVector3f::GLVector3f(0.0f, 0.0f, -1.0f);
+	GLVector3f::GLVector3f up = GLVector3f::GLVector3f(0.0f, 1.0f, 0.0f);
 
 	Camera() {}
 	Camera(GLVector3f::GLVector3f position, GLVector3f::GLVector3f look);
-	void update();
+	void render();
 
 	void moveForward(float distance);
 	void pan(float distance);

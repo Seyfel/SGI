@@ -1,10 +1,12 @@
 #include "Camera.h"
 
+#include <iostream>
+
 Camera::Camera(GLVector3f::GLVector3f position, GLVector3f::GLVector3f look) : position(position) {
 	this->look = normalize(look);
 }
 
-void Camera::update() {
+void Camera::render() {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	gluLookAt(position.x, position.y, position.z,
@@ -37,7 +39,7 @@ void Camera::pitch(float delta) {
 
 void Camera::yaw(float delta) {
 	GLMatrixf::GLMatrixf m;
-	m.rotate(delta, up);
+	m.rotate(-delta, up);
 	look = GLMatrixf::transformPoint(m, look);
 }
 
